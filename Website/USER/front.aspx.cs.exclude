@@ -1,0 +1,65 @@
+﻿using System;
+using System.Collections;
+using System.Configuration;
+using System.Data;
+// using System.Linq;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+// using System.Xml.Linq;
+using BusinessL;
+
+public partial class front : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+
+       // Session["totalexamminute"] = 10;
+        Settingone obset = SettingoneManager.SelectbyLevelId(Convert.ToInt32(Request.QueryString["SubId"]));
+        if (obset != null)
+        {
+            Session["totalexamminute"] = obset.Timelimit;
+            lblsettime.Text = obset.Timelimit + "Min";
+            lblmarks.Text = obset.Setmarks.ToString();
+            lblquestion.Text = obset.QuestionSet;
+        }
+
+
+
+
+        if (Session["Ds"] == null)
+        {
+            if (Request.QueryString["SubId"] != null && Request.QueryString["SettingId"] != null)
+            {
+
+
+                DataSet dsQuestionList = QuestionMstManager.ListExamQuestionbysettingId(Convert.ToInt32(Request.QueryString["SettingId"]), Convert.ToInt32(Request.QueryString["SubId"]));
+
+
+                if (dsQuestionList.Tables[0].Rows.Count > 0)
+                {
+
+                    Session["Ds"] = dsQuestionList.Tables[0];
+
+
+                }
+                else
+                {
+                    Response.Redirect("WelCome.aspx");
+                }
+            }
+        }
+       
+
+
+        
+          
+    }
+    //protected void ImageButton1_Click(object sender, ImageClickEventArgs e)
+    //{
+
+    //}
+}

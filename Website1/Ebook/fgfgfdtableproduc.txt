@@ -1,0 +1,705 @@
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE [usp_PRAddCategory](@CategoryID AS INT OUTPUT, @Name AS NVARCHAR(400), @Description AS NTEXT = null, @TemplateID AS INT = null, @MetaKeywords AS NVARCHAR(400) = null, @MetaDescription AS NVARCHAR(4000) = null, @MetaTitle AS NVARCHAR(400) = null, @SEName AS NVARCHAR(100) = null, @ParentCategoryID AS INT, @PictureID AS INT = null, @Published AS BIT = null, @Deactive AS BIT, @DisplayOrder AS INT = null, @InsertedOn AS DATETIME, @InsertedBy AS INT)
+AS
+	SET NOCOUNT ON
+	--Select @ = Isnull(Max(),0) + 1 from Category
+	If NOT EXISTS(Select * From Category where [Name] = @Name)
+	Begin
+    INSERT INTO Category ([Name], [Description], [TemplateID], [MetaKeywords], [MetaDescription], [MetaTitle], [SEName], [ParentCategoryID], [PictureID], [Published], [Deactive], [DisplayOrder], [InsertedOn],[InsertedBy])
+	 VALUES (@Name, @Description, @TemplateID, @MetaKeywords, @MetaDescription, @MetaTitle, @SEName, @ParentCategoryID, @PictureID, @Published, @Deactive, @DisplayOrder, @InsertedOn, @InsertedBy)
+		Select CategoryId from Category where [Name] = @Name 
+	End
+	Else
+	Begin
+		Select 0 from Category where [Name] = @Name 
+	End
+	RETURN @@Error
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE [usp_PRAddProduct](@ProductId AS INT, 
+@Name AS NVARCHAR(400), 
+@ShortDescription AS NTEXT, 
+@FullDescription AS NTEXT, 
+@AdminComment AS NTEXT = null, 
+@ProductTypeID AS INT = null, 
+@CategoryId AS INT, 
+@TemplateID AS INT = null, 
+@MetaKeywords AS NVARCHAR(400) = null, 
+@MetaDescription AS NVARCHAR(4000) = null, 
+@MetaTitle AS NVARCHAR(400) = null, 
+@SEName AS NVARCHAR(100) = null, 
+@AllowCustomerReviews AS BIT = null, 
+@RatingSum AS INT = null, 
+@TotalRatingVotes AS INT = null, 
+@Published AS BIT = null, 
+@Deactive AS BIT, 
+@ImageUrl AS VARCHAR(250) = null, 
+@BigImageUrl AS VARCHAR(250) = null, 
+@InsertedOn AS DATETIME, 
+@InsertedBy AS INT,
+@IsGiveAway As BIT = 0,
+@WantInReturn Varchar(200) = null,
+@IsHotProduct bit = null)
+AS
+	SET NOCOUNT ON
+	Select @ProductId = Isnull(Max(ProductId),0) + 1 from Product
+    INSERT INTO dbo.Product ([ProductId], [Name], [ShortDescription], [FullDescription], [AdminComment], [ProductTypeID], [CategoryId], [TemplateID], [MetaKeywords], [MetaDescription], [MetaTitle], [SEName], 
+[AllowCustomerReviews], [RatingSum], [TotalRatingVotes], [Published], [Deactive], [ImageUrl], [BigImageUrl], [InsertedOn], [InsertedBy],[IsGiveAway],[WantInReturn],[IsHotProduct])
+	 VALUES (@ProductId, @Name, @ShortDescription, @FullDescription, @AdminComment, @ProductTypeID, @CategoryId, @TemplateID, @MetaKeywords, @MetaDescription, @MetaTitle, @SEName, @AllowCustomerReviews, @RatingSum, @TotalRatingVotes, @Published, @Deactive, @ImageUrl, @BigImageUrl, @InsertedOn, @InsertedBy,@IsGiveAway,@WantInReturn,@IsHotProduct)
+	Select @ProductId from Product where ProductId = @ProductId
+	RETURN @@Error
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE [usp_PRDeleteCategory](@CategoryId int)
+AS
+	SET NOCOUNT ON
+	Update Category
+	Set Deactive = 1
+	WHERE CategoryId = @CategoryId
+	Update Category Set ParentCategoryId  =  0
+	Where ParentCategoryId = @CategoryId
+	RETURN @@Error
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE [usp_PRDeleteProduct](
+@ProductId int
+)
+AS
+	SET NOCOUNT ON
+	Update Product
+	Set Deactive = 1
+	 WHERE ProductId = @ProductId
+	RETURN @@Error
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc [usp_PRGetAllCategory]
+as
+Begin
+	Select top 7 * from Category where Deactive = 0 order by Category.[Name]
+End
+
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+
+CREATE  Proc usp_PRGetBarter  
+As  
+Begin  
+SELECT Product.*, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId  
+FROM Product INNER JOIN  
+Country INNER JOIN  
+UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN  
+UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId  
+Where IsGiveAway = 0 and Product.Deactive = 0  order by 
+--newid() ,
+Product.[Name]  
+End  
+
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc [usp_PRGetCategory]
+as
+Begin
+	Select * from Category where Deactive = 0 order by Category.[Name]
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+Create Proc [usp_PRGetCategoryByID](@CategoryId int)
+as
+Begin
+	Select * from Category where Deactive = 0 and CategoryId = @CategoryId
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc usp_PRGetCategoryByParent(@CategoryId int)
+as
+Begin
+	Select * from Category where ParentCategoryId = @CategoryId and Deactive = 0 order by Category.[Name]
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+
+CREATE  Proc usp_PRGetGiveAway
+As  
+Begin  
+SELECT Product.*, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId  
+FROM Product INNER JOIN  
+Country INNER JOIN  
+UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN  
+UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId  
+Where IsGiveAway = 1 and Product.Deactive = 0  order by 
+--newid() ,
+Product.[Name]  
+End  
+
+
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS OFF 
+GO
+
+CREATE Proc [usp_PRGetListCategory]
+as
+Begin
+	Select  * from Category where Deactive = 0 order by Category.[Name]
+End
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc [usp_PRGetParentCategory]
+as
+Begin
+	Select * from Category where CategoryId in ('-1','-2','-3')  
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+Create Proc [usp_PRGetProductByCategory](@CategoryId int)
+as
+Begin
+Select * from Product where CategoryId = @CategoryId
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc usp_PRGetProductById(@ProductId int)
+as
+Begin
+	Select c.[name]as categoryname,p.* from Product p  inner join category c on c.categoryid=p.categoryid
+	where productid = @ProductId and p.deactive = 0
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc [usp_PRGetProductByUser](@UserId int)
+As
+Begin
+if(@UserId <> 0)
+	Select * from Product where Deactive = 0 and InsertedBy = @UserId
+else
+	Select * from Product where Deactive = 0
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc usp_PRGetProductForHome
+as
+Begin		
+	SELECT Top 12  Product.*, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId
+	FROM         Product INNER JOIN
+	                      Country INNER JOIN
+	                      UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN
+	                      UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId
+	Where IsGiveAway = 0 and Product.Deactive = 0 order by newid() ,Product.[Name]
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc usp_PRGiveAwayProductForHome
+as
+Begin
+	SELECT Top 12  Product.*, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId
+	FROM         Product INNER JOIN
+	                      Country INNER JOIN
+	                      UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN
+	                      UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId
+	Where IsGiveAway = 1 and Product.Deactive = 0 order by newid() ,Product.[Name]
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc usp_PRGiveAwayRecommendedForHome
+As
+Begin
+	SELECT Top 12  Product.*, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId
+	FROM         Product INNER JOIN
+	                      Country INNER JOIN
+	                      UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN
+	                      UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId
+	Where IsGiveAway = 1 and Product.Deactive = 0 and IsHotProduct = 1 order by newid() ,Product.[Name]
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc usp_PRProductRecommendedForHome
+As
+Begin
+	SELECT    Top 12 Product.*, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId
+	FROM         Product INNER JOIN
+	                      Country INNER JOIN
+	                      UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN
+	                      UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId
+	Where IsGiveAway = 0 and Product.Deactive = 0 and IsHotProduct = 1 order by newid() ,Product.[Name]
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc [usp_PRProductSearch]
+(	@CategoryId int,
+ 	@CountryId int,
+	@barter nvarchar(200),
+	@ProductType nvarchar(200)
+)
+as
+
+Begin
+        Declare @strSql nvarchar(4000)
+	set @strSql = 'SELECT Product.ProductId, Product.[name],Product.ShortDescription,Product.FullDescription,AdminComment,ProductTypeID,CategoryId,TemplateID,MetaKeywords,MetaDescription,MetaTitle,SEName,AllowCustomerReviews, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId,isgiveaway
+       	FROM  Product INNER JOIN
+              Country INNER JOIN
+       	      UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN
+       	      UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId
+	where Product.deactive=0 and '
+
+	if(@CategoryId <> 0)
+           set @strSql = @strSql + 'categoryid = ' + convert(varchar,@CategoryId) + ' and '
+
+	if(@CountryId <> 0)
+             set @strSql = @strSql + 'Country.CountryId = ' + convert(varchar,@CountryId) + ' and '
+
+             set @strSql = @strSql + 'isgiveaway = ' + convert(varchar,@barter) + ' and '
+
+--	if(@ProductType <> 0)
+--             set @strSql = @strSql + '  = ' + convert(varchar,@ProductType) + ' and '
+
+
+              set @strSql = @strSql + '1 = 1'
+
+--print @strSql
+              exec sp_executesql @strSql
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc [usp_PRProductSearch_Test]
+(	@CategoryId int,
+ 	@CountryId int,
+	@barter nvarchar(200),
+	@ProductType nvarchar(200)
+)
+as
+
+Begin
+        Declare @strSql nvarchar(4000)
+	set @strSql = 'SELECT Product.ProductId,Product.[name],Product.ShortDescription,Product.FullDescription,AdminComment,ProductTypeID,CategoryId,TemplateID,MetaKeywords,MetaDescription,MetaTitle,SEName,AllowCustomerReviews, UserMst.Username, UserMst.UserId, Country.Country, Country.CountryId
+       	FROM  Product INNER JOIN
+              Country INNER JOIN
+       	      UserContactDetails ON Country.CountryId = UserContactDetails.CountryId INNER JOIN
+       	      UserMst ON UserContactDetails.UserId = UserMst.UserId ON Product.InsertedBy = UserMst.UserId
+	where Product.deactive=0 and '
+
+	if(@CategoryId <> 0)
+           set @strSql = @strSql + 'categoryid = ' + convert(varchar,@CategoryId) + ' and '
+
+	if(@CountryId <> 0)
+             set @strSql = @strSql + 'CountryId = ' + convert(varchar,@CountryId) + ' and '
+
+             set @strSql = @strSql + 'isgiveaway = ' + convert(varchar,@barter) + ' and '
+
+--	if(@ProductType <> 0)
+--             set @strSql = @strSql + '  = ' + convert(varchar,@ProductType) + ' and '
+
+
+              set @strSql = @strSql + '1 = 1'
+
+--print @strSql
+              exec sp_executesql @strSql
+End
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE Proc [usp_PRSearchProduct_Delete](@ProductName varchar(100),@CategoryId int,@CountryId int)
+as
+if(@CategoryId = 0 and @CountryId = 0)
+Begin
+	SELECT     Product.*
+	FROM         UserContactDetails INNER JOIN
+						  UserMst ON UserContactDetails.UserId = UserMst.UserId INNER JOIN
+						  Product ON UserMst.UserId = Product.InsertedBy
+			where [Name] like '%' + @ProductName +  '%'
+				--and CategoryId = @CategoryId and CountryId = @CountryId
+End
+else if(@CategoryId = 0 and @CountryId <> 0)
+Begin
+	SELECT     Product.*
+	FROM         UserContactDetails INNER JOIN
+						  UserMst ON UserContactDetails.UserId = UserMst.UserId INNER JOIN
+						  Product ON UserMst.UserId = Product.InsertedBy
+		where [Name] like '%' + @ProductName +  '%'
+				 and CountryId = @CountryId
+End
+else if(@CategoryId <> 0 and @CountryId = 0)
+Begin
+	SELECT     Product.*
+	FROM         UserContactDetails INNER JOIN
+						  UserMst ON UserContactDetails.UserId = UserMst.UserId INNER JOIN
+						  Product ON UserMst.UserId = Product.InsertedBy Inner Join Category
+						  On Product.CategoryID  = Category.CategoryID
+		where Product.[Name] like '%' + @ProductName +  '%'
+				and ParentCategoryId = @CategoryId --and CountryId = @CountryId
+End
+else
+Begin
+	SELECT     Product.*
+	FROM         UserContactDetails INNER JOIN
+						  UserMst ON UserContactDetails.UserId = UserMst.UserId INNER JOIN
+						  Product ON UserMst.UserId = Product.InsertedBy Inner Join Category
+						  On Product.CategoryID  = Category.CategoryID
+				where Product.[Name] like '%' + @ProductName +  '%'
+				and ParentCategoryId = @CategoryId and CountryId = @CountryId
+End
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE [usp_PRUpdateCategory](@CategoryID AS INT,
+ @Name AS NVARCHAR(400), 
+ @Description AS NTEXT = null, 
+  @TemplateID AS INT = null,
+  @MetaKeywords AS NVARCHAR(400)= null, 
+  @MetaDescription AS NVARCHAR(4000) = null, 
+  @MetaTitle AS NVARCHAR(400) = null, 
+  @SEName AS NVARCHAR(100) = null, 
+  @ParentCategoryID AS INT = null, 
+  @PictureID AS INT = null, 
+  @Published AS BIT = null, 
+  @Deactive AS BIT, 
+  @DisplayOrder AS INT = null, @UpdatedOn AS DATETIME, @UpdatedBy AS INT)
+AS
+	SET NOCOUNT ON
+	IF Not Exists(Select * From Category where [Name] = @Name and CategoryID <> @CategoryID)
+	Begin
+	 UPDATE Category
+	 SET  [Name] = @Name, 
+	 [Description] = @Description, 
+	 [TemplateID] = @TemplateID, 
+	 [MetaKeywords] = @MetaKeywords, 
+	 [MetaDescription] = @MetaDescription, 
+	 [MetaTitle] = @MetaTitle, 
+	 [SEName] = @SEName, 
+	 [ParentCategoryID] = @ParentCategoryID, 
+	 [PictureID] = @PictureID, 
+	 [Published] = @Published, 
+	 [Deactive] = @Deactive, 
+	 [DisplayOrder] = @DisplayOrder, 
+	 --[InsertedOn] = @InsertedOn, 
+	 [UpdatedOn] = @UpdatedOn, 
+	 --[InsertedBy] = @InsertedBy, 
+	 [UpdatedBy] = @UpdatedBy
+	 WHERE [CategoryID] = @CategoryID
+		Select @CategoryID From Category where [Name] = @Name
+	End
+	Else
+	Begin
+		Select 0 From Category where [Name] = @Name
+	End
+	RETURN @@Error
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE  PROCEDURE [usp_PRUpdateProduct](
+@ProductId AS INT, 
+@Name AS NVARCHAR(400), 
+@ShortDescription AS NTEXT, 
+@FullDescription AS NTEXT, 
+@AdminComment AS NTEXT = null, 
+@ProductTypeID AS INT = null, 
+@CategoryId AS INT, 
+@TemplateID AS INT = null, 
+@MetaKeywords AS NVARCHAR(400) = null, 
+@MetaDescription AS NVARCHAR(4000) = null, 
+@MetaTitle AS NVARCHAR(400) = null, 
+@SEName AS NVARCHAR(100) = null, 
+@AllowCustomerReviews AS BIT = null, 
+@RatingSum AS INT = null, 
+@TotalRatingVotes AS INT = null, 
+@Published AS BIT = null, 
+@Deactive AS BIT, 
+@ImageUrl AS VARCHAR(250), 
+@BigImageUrl AS VARCHAR(250) = null, 
+@UpdatedOn AS DATETIME, @UpdatedBy AS INT,@WantInReturn Varchar(200) = null,
+@IsHotProduct As Bit = null )
+AS
+
+	SET NOCOUNT ON
+
+if (@ImageUrl <>'')
+begin
+	UPDATE dbo.Product
+	 SET [ProductId] = @ProductId, 
+	 [Name] = @Name, 
+	 [ShortDescription] = @ShortDescription, 
+	 [FullDescription] = @FullDescription, 
+	 [AdminComment] = @AdminComment, 
+	 [ProductTypeID] = @ProductTypeID, 
+	 [CategoryId] = @CategoryId, 
+	 [TemplateID] = @TemplateID, 
+	 [MetaKeywords] = @MetaKeywords, 
+	 [MetaDescription] = @MetaDescription, 
+	 [MetaTitle] = @MetaTitle, 
+	 [SEName] = @SEName, 
+	 [AllowCustomerReviews] = @AllowCustomerReviews, 
+	 [RatingSum] = @RatingSum, 
+	 [TotalRatingVotes] = @TotalRatingVotes, 
+	 [Published] = @Published, 
+	 [Deactive] = @Deactive, 
+	 [ImageUrl] = @ImageUrl, 
+	 [BigImageUrl] = @BigImageUrl, 	
+	 [UpdatedOn] = @UpdatedOn, 
+	 [UpdatedBy] = @UpdatedBy,
+--	 [WantInReturn] = @WantInReturn,
+	 [IsHotProduct] = @IsHotProduct
+	 WHERE ProductId = @ProductId
+End
+else
+begin
+
+	UPDATE dbo.Product
+	 SET [ProductId] = @ProductId, 
+	 [Name] = @Name, 
+	 [ShortDescription] = @ShortDescription, 
+	 [FullDescription] = @FullDescription, 
+	 [AdminComment] = @AdminComment, 
+	 [ProductTypeID] = @ProductTypeID, 
+	 [CategoryId] = @CategoryId, 
+	 [TemplateID] = @TemplateID, 
+	 [MetaKeywords] = @MetaKeywords, 
+	 [MetaDescription] = @MetaDescription, 
+	 [MetaTitle] = @MetaTitle, 
+	 [SEName] = @SEName, 
+	 [AllowCustomerReviews] = @AllowCustomerReviews, 
+	 [RatingSum] = @RatingSum, 
+	 [TotalRatingVotes] = @TotalRatingVotes, 
+	 [Published] = @Published, 
+	 [Deactive] = @Deactive, 
+	 [ImageUrl] = @ImageUrl, 
+	 [BigImageUrl] = @BigImageUrl, 	
+	 [UpdatedOn] = @UpdatedOn, 
+	 [UpdatedBy] = @UpdatedBy,
+--	 [WantInReturn] = @WantInReturn,
+	 [IsHotProduct] = @IsHotProduct
+	 WHERE ProductId = @ProductId
+
+	Select @ProductId from Product where ProductId = @ProductId
+	RETURN @@Error
+End
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+

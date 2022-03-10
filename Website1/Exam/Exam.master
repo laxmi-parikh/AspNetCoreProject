@@ -1,0 +1,81 @@
+﻿<%@ Master Language="C#" AutoEventWireup="false" CodeFile="Exam.master.cs" Inherits="USER_USER" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    
+    <title></title>
+<style type="text/css">
+
+body {
+	background-color: #888888;
+	margin-top: 0px;
+}
+
+</style>
+
+<script language="JavaScript">
+javascript:window.history.forward(1);
+</script>
+  
+<link href="style.css" rel="stylesheet" type="text/css" />
+
+    
+    <asp:ContentPlaceHolder id="head" runat="server">
+    <script language="JavaScript">
+javascript:window.history.forward(1);
+</script>
+  
+    </asp:ContentPlaceHolder>
+    
+   
+   
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+<table width="1000" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td height="126" valign="bottom" class="headerbg">
+    <table width="356" border="0" cellpadding="0" cellspacing="0" class="pad1">
+      <tr>
+
+        <td width="356" height="73" class="name"></td>
+      </tr>
+    </table>
+    </td>
+  </tr>
+  <%--<tr>
+    <td height="70" align="right" valign="top" bgcolor="#FFFFFF">
+    <table width="73" border="0" cellpadding="0" cellspacing="0" class="margin">
+      <tr>
+        <td height="28">
+        
+       
+         <asp:ImageButton ID="ImageButton1" ImageUrl ="~/Admin/images/lod_out.gif" runat="server" 
+                onclick="ImageButton1_Click"  Visible="false"/>
+        
+          </td>
+      </tr>
+
+    </table>
+    </td>
+  </tr>--%>
+  <tr>
+    <td height="404" align="center" valign="top" bgcolor="#FFFFFF">
+        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+
+        </asp:ContentPlaceHolder>
+      </td>
+
+  </tr>
+  
+</table>
+
+
+<map name="Map" id="Map"><area shape="rect" coords="7,2,73,25" href="#" />
+    </div>
+    </form>
+</body>
+</html>

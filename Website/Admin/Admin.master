@@ -1,0 +1,163 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Admin.master.cs" Inherits="Admin_Admin" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+<Title>ArmStrong</Title>
+   <style type="text/css">
+      
+
+body  {
+	background-color: #888888;
+	margin-top: 0px;
+}
+
+</style>
+<link href="style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+     <script type="text/javascript" src="js/jquery-ui-1.8.4.custom.min.js"></script>
+     <link type="text/css" rel="Stylesheet" href="css/ui-lightness/jquery-ui-1.8.4.custom.css" />
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+    
+  <script src="ckeditor/ckeditor.js" type="text/javascript"></script>
+ <script language="javascript" type="text/javascript">
+
+     function CheckNumericKeyCode(B) {
+         var A;
+         if (window.event) {
+             A = event.keyCode
+         }
+         else {
+             if (B.which) {
+                 A = B.which
+             }
+         }
+         if ((A == 27 || A == 9 || A == 8 || A == 46 || A == 35 || A == 36 || A == 37 || A == 39) || (A >= 48 && A <= 57) || (A >= 96 && A <= 105)) {
+             return true
+         }
+         else {
+             return false
+         }
+     }
+     
+
+</Script>
+
+</head>
+<body>
+    <form id="form1" runat="server">
+    
+    <table width="1000" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td height="126" colspan="2" valign="bottom" class="headerbg"><table width="356" border="0" cellpadding="0" cellspacing="0" class="pad1">
+      <tr>
+        <td width="356" height="73" class="name" align="left"></td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td height="70" colspan="2" align="right" valign="top" bgcolor="#FFFFFF"><table width="73" border="0" cellpadding="0" cellspacing="0" class="margin">
+      <tr>
+        <td height="28">
+        
+         <asp:ImageButton ID="ImageButton1" ImageUrl ="images/lod_out.gif"  runat="server" 
+                onclick="ImageButton1_Click" />
+                
+        
+        </td>
+      </tr>
+    </table>
+       
+      </td>
+  </tr>
+  <tr>
+    <td width="290" height="450" align="center" valign="top" bgcolor="#FFFFFF" ><p>&nbsp;</p>
+      <table width="160" height="450" border="0" cellspacing="0" cellpadding="0">
+       <tr>
+   <%--  class="wel_tab"--%>
+            <td align="left" valign="top" bgcolor="#f6f6f6" >
+          <table width="160" height="400" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+              <td height="30" align="left" class="wel"><a href="AddFunction.aspx"  class="wel">Add Function</a></td>
+            </tr>
+            <tr>
+              <td height="30" align="left" class="wel"><a href="AddLevel.aspx" class="wel">Add Level</a></td>
+            </tr>
+       
+             <tr>
+              <td height="30" align="left" class="wel"><a href="Setting.aspx" class="wel">Title/Topic </a></td>
+            </tr>
+            
+            <tr>
+              <td height="30" align="left" class="wel"><a href="AddQuestion.aspx" class="wel">Add Question </a></td>
+            </tr>
+           
+            <tr>
+             <td height="30" align="left"  class="wel"><a href ="ListQuestion.aspx"  class="wel" >Questions List</a></td>
+            </tr>
+              
+                 <tr>
+              <td height="30" align="left" class="wel"><a href="SettingExam.aspx" class="wel">Settings Exam </a></td>
+            </tr>
+
+               <tr>
+              <td height="30" align="left" class="wel"> <a href ="ListSetting.aspx" class="wel" >Settings List</a></td>
+            </tr>
+                   
+              
+            <tr>
+              <td height="30" align="left" class="wel"> <a href ="ExamReport.aspx" class="wel" >Exam Report </a></td>
+            </tr>   
+            <tr>
+              <td height="30" align="left" class="wel"> <a href ="UserList.aspx" class="wel" >Candidate List</a></td>
+            </tr>  
+                <tr>
+              <td height="30" align="left" class="wel"> <a href ="UserReport.aspx" class="wel" >Candidate Report</a></td>
+            </tr>
+              <tr>
+              <td height="30" align="left" class="wel"> <a href ="FunctionwiseReport.aspx" class="wel" >Function Report</a></td>
+            </tr>
+              <tr>
+              <td height="30" align="left" class="wel"><a href="FileUpload.aspx" class="wel">Upload E-book</a></td>
+            </tr>           
+            <tr>
+              <td height="30" align="left" class="wel"><a href="Emailaddressbook.aspx" class="wel">E-Mail</a></td>
+            </tr>    
+              <tr>
+              <td height="30" align="left" class="wel"><a href="AddInterviewer.aspx" class="wel">Add Interview </a></td>
+            </tr> 
+             <tr>
+              <td height="30" align="left" class="wel"><a href="ListSettingInterview.aspx" class="wel">Interview List </a></td>
+            </tr>  
+              <tr>
+              <td height="30" align="left" class="wel"><a href="InterviewReport.aspx" class="wel">Interview Report </a></td>
+            </tr>       
+          
+
+
+           <tr>
+              <td height="34" align="left"> &nbsp;</td>
+            </tr>
+
+          </table>
+          </td>
+        
+        </tr>
+
+      </table>     
+       </td>
+    <td width="710" align="left" valign="top" bgcolor="#FFFFFF">
+    <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+    </asp:ContentPlaceHolder>
+    
+   </td>
+  </tr>
+</table>
+    
+
+
+    </form>
+</body>
+</html>
